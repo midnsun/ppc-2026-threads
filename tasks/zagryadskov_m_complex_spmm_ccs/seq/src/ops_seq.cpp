@@ -1,12 +1,10 @@
 #include "zagryadskov_m_complex_spmm_ccs/seq/include/ops_seq.hpp"
 
-#include <algorithm>
+#include <cmath>
 #include <complex>
-#include <numeric>
 #include <tuple>
 #include <vector>
 
-#include "util/include/util.hpp"
 #include "zagryadskov_m_complex_spmm_ccs/common/include/common.hpp"
 
 namespace zagryadskov_m_complex_spmm_ccs {
@@ -14,8 +12,7 @@ namespace zagryadskov_m_complex_spmm_ccs {
 ZagryadskovMComplexSpMMCCSSEQ::ZagryadskovMComplexSpMMCCSSEQ(const InType &in) {
   SetTypeOfTask(GetStaticTypeOfTask());
   GetInput() = in;
-  CCS emptyOutput;
-  GetOutput() = emptyOutput;
+  GetOutput() = CCS();
 }
 
 void ZagryadskovMComplexSpMMCCSSEQ::SpMM(const CCS &a, const CCS &b, CCS &c) {
@@ -37,9 +34,9 @@ void ZagryadskovMComplexSpMMCCSSEQ::SpMM(const CCS &a, const CCS &b, CCS &c) {
       std::complex<double> tmpval = b.values[k];
       int btmpind = b.row_ind[k];
 
-      for (int p = a.col_ptr[btmpind]; p < a.col_ptr[btmpind + 1]; ++p) {
-        int atmpind = a.row_ind[p];
-        acc[atmpind] += tmpval * a.values[p];
+      for (int zp = a.col_ptr[btmpind]; zp < a.col_ptr[btmpind + 1]; ++zp) {
+        int atmpind = a.row_ind[zp];
+        acc[atmpind] += tmpval * a.values[zp];
         if (marker[atmpind] != j) {
           rows.push_back(atmpind);
           marker[atmpind] = j;
@@ -47,8 +44,7 @@ void ZagryadskovMComplexSpMMCCSSEQ::SpMM(const CCS &a, const CCS &b, CCS &c) {
       }
     }
 
-    for (size_t i = 0; i < rows.size(); ++i) {
-      int tmpind = rows[i];
+    for (int tmpind : rows) {
       if (std::abs(acc[tmpind]) > eps) {
         c.values.push_back(acc[tmpind]);
         c.row_ind.push_back(tmpind);
@@ -62,9 +58,9 @@ void ZagryadskovMComplexSpMMCCSSEQ::SpMM(const CCS &a, const CCS &b, CCS &c) {
 }
 
 bool ZagryadskovMComplexSpMMCCSSEQ::ValidationImpl() {
-  CCS A = std::get<0>(GetInput());
-  CCS B = std::get<1>(GetInput());
-  return A.n == B.m;
+  CCS a = std::get<0>(GetInput());
+  CCS b = std::get<1>(GetInput());
+  return a.n == b.m;
 }
 
 bool ZagryadskovMComplexSpMMCCSSEQ::PreProcessingImpl() {
@@ -72,11 +68,11 @@ bool ZagryadskovMComplexSpMMCCSSEQ::PreProcessingImpl() {
 }
 
 bool ZagryadskovMComplexSpMMCCSSEQ::RunImpl() {
-  const CCS &A = std::get<0>(GetInput());
-  const CCS &B = std::get<1>(GetInput());
-  CCS &C = GetOutput();
+  const CCS &a = std::get<0>(GetInput());
+  const CCS &b = std::get<1>(GetInput());
+  CCS &c = GetOutput();
 
-  SpMM(A, B, C);
+  SpMM(a, b, c);
 
   return true;
 }

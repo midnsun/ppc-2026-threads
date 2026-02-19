@@ -3,10 +3,9 @@
 #include <algorithm>
 #include <array>
 #include <cmath>
+#include <complex>
 #include <cstddef>
-#include <cstdint>
-#include <numeric>
-#include <stdexcept>
+#include <ranges>
 #include <string>
 #include <tuple>
 #include <utility>
@@ -30,7 +29,7 @@ class ZagryadskovMRunFuncTestsThreads : public ppc::util::BaseRunFuncTests<InTyp
     TestType params = std::get<static_cast<std::size_t>(ppc::util::GTestParamIndex::kTestParams)>(GetParam());
     CCS &a = std::get<0>(input_data_);
     CCS &b = std::get<1>(input_data_);
-    CCS &c = test_result;
+    CCS &c = test_result_;
 
     if (params == 0) {
       a.m = 2;
@@ -96,31 +95,31 @@ class ZagryadskovMRunFuncTestsThreads : public ppc::util::BaseRunFuncTests<InTyp
   bool CheckTestOutputData(OutType &output_data) final {
     bool result = true;
     double eps = 1e-14;
-    bool f1 = test_result.m != output_data.m;
-    bool f2 = test_result.n != output_data.n;
-    bool f3 = test_result.col_ptr.size() != output_data.col_ptr.size();
-    bool f4 = test_result.row_ind.size() != output_data.row_ind.size();
-    bool f5 = test_result.values.size() != output_data.values.size();
+    bool f1 = test_result_.m != output_data.m;
+    bool f2 = test_result_.n != output_data.n;
+    bool f3 = test_result_.col_ptr.size() != output_data.col_ptr.size();
+    bool f4 = test_result_.row_ind.size() != output_data.row_ind.size();
+    bool f5 = test_result_.values.size() != output_data.values.size();
 
     if (f1 || f2 || f3 || f4 || f5) {
       result = false;
     }
-    for (size_t i = 0; i < test_result.col_ptr.size(); ++i) {
-      if (test_result.col_ptr[i] != output_data.col_ptr[i]) {
+    for (size_t i = 0; i < test_result_.col_ptr.size(); ++i) {
+      if (test_result_.col_ptr[i] != output_data.col_ptr[i]) {
         result = false;
       }
     }
 
-    for (int j = 0; j < test_result.n; ++j) {
+    for (int j = 0; j < test_result_.n; ++j) {
       std::vector<std::pair<int, std::complex<double>>> test;
       std::vector<std::pair<int, std::complex<double>>> output;
-      for (int k = test_result.col_ptr[j]; k < test_result.col_ptr[j + 1]; ++k) {
-        test.push_back(std::make_pair(test_result.row_ind[k], test_result.values[k]));
-        output.push_back(std::make_pair(output_data.row_ind[k], output_data.values[k]));
+      for (int k = test_result_.col_ptr[j]; k < test_result_.col_ptr[j + 1]; ++k) {
+        test.emplace_back(std::make_pair(test_result_.row_ind[k], test_result_.values[k]));
+        output.emplace_back(std::make_pair(output_data.row_ind[k], output_data.values[k]));
       }
       auto cmp = [](const auto &x, const auto &y) { return x.first < y.first; };
-      std::sort(test.begin(), test.end(), cmp);
-      std::sort(output.begin(), output.end(), cmp);
+      std::ranges::sort(test, cmp);
+      std::ranges::sort(output, cmp);
 
       for (size_t i = 0; i < test.size(); ++i) {
         bool f6 = test[i].first != output[i].first;
@@ -139,8 +138,8 @@ class ZagryadskovMRunFuncTestsThreads : public ppc::util::BaseRunFuncTests<InTyp
   }
 
  private:
-  InType input_data_{};
-  OutType test_result{};
+  InType input_data_;
+  OutType test_result_;
 };
 
 namespace {
