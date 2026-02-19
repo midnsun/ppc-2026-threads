@@ -2,6 +2,7 @@
 
 #include <complex>
 #include <tuple>
+#include <vector>
 
 #include "task/include/task.hpp"
 

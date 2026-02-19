@@ -5,7 +5,6 @@
 #include <cmath>
 #include <complex>
 #include <cstddef>
-#include <ranges>
 #include <string>
 #include <tuple>
 #include <utility>
@@ -114,8 +113,8 @@ class ZagryadskovMRunFuncTestsThreads : public ppc::util::BaseRunFuncTests<InTyp
       std::vector<std::pair<int, std::complex<double>>> test;
       std::vector<std::pair<int, std::complex<double>>> output;
       for (int k = test_result_.col_ptr[j]; k < test_result_.col_ptr[j + 1]; ++k) {
-        test.emplace_back(std::make_pair(test_result_.row_ind[k], test_result_.values[k]));
-        output.emplace_back(std::make_pair(output_data.row_ind[k], output_data.values[k]));
+        test.emplace_back(test_result_.row_ind[k], test_result_.values[k]);
+        output.emplace_back(output_data.row_ind[k], output_data.values[k]);
       }
       auto cmp = [](const auto &x, const auto &y) { return x.first < y.first; };
       std::ranges::sort(test, cmp);
