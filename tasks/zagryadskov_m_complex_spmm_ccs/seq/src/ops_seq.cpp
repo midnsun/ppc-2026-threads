@@ -1,13 +1,13 @@
 #include "zagryadskov_m_complex_spmm_ccs/seq/include/ops_seq.hpp"
 
-#include <numeric>
-#include <vector>
-#include <tuple>
-#include <complex>
 #include <algorithm>
+#include <complex>
+#include <numeric>
+#include <tuple>
+#include <vector>
 
-#include "zagryadskov_m_complex_spmm_ccs/common/include/common.hpp"
 #include "util/include/util.hpp"
+#include "zagryadskov_m_complex_spmm_ccs/common/include/common.hpp"
 
 namespace zagryadskov_m_complex_spmm_ccs {
 
@@ -18,47 +18,46 @@ ZagryadskovMComplexSpMMCCSSEQ::ZagryadskovMComplexSpMMCCSSEQ(const InType &in) {
   GetOutput() = emptyOutput;
 }
 
-void ZagryadskovMComplexSpMMCCSSEQ::SpMM(const CCS& A, const CCS& B, CCS& C) {
-  C.m = A.m;
-  C.n = B.n;
-  C.col_ptr.assign(B.n + 1, 0);
-  C.row_ind.clear();
-  C.values.clear();
+void ZagryadskovMComplexSpMMCCSSEQ::SpMM(const CCS &a, const CCS &b, CCS &c) {
+  c.m = a.m;
+  c.n = b.n;
+  c.col_ptr.assign(b.n + 1, 0);
+  c.row_ind.clear();
+  c.values.clear();
   std::complex<double> zero(0.0, 0.0);
   std::vector<int> rows;
-  std::vector<int> marker(A.m, -1);
-  std::vector<std::complex<double>> acc(A.m);
+  std::vector<int> marker(a.m, -1);
+  std::vector<std::complex<double>> acc(a.m);
   const double eps = 1e-14;
 
-  for (int j = 0; j < B.n; ++j) {
+  for (int j = 0; j < b.n; ++j) {
     rows.clear();
 
-    for (int k = B.col_ptr[j]; k < B.col_ptr[j + 1]; ++k) {
-      std::complex<double> tmpval = B.values[k];
-      int Btmpind = B.row_ind[k];
+    for (int k = b.col_ptr[j]; k < b.col_ptr[j + 1]; ++k) {
+      std::complex<double> tmpval = b.values[k];
+      int btmpind = b.row_ind[k];
 
-      for (int p = A.col_ptr[Btmpind]; p < A.col_ptr[Btmpind + 1]; ++p) {
-        int Atmpind = A.row_ind[p];
-        acc[Atmpind] += tmpval*A.values[p];
-        if (marker[Atmpind] != j) {
-          rows.push_back(Atmpind);
-          marker[Atmpind] = j;
+      for (int p = a.col_ptr[btmpind]; p < a.col_ptr[btmpind + 1]; ++p) {
+        int atmpind = a.row_ind[p];
+        acc[atmpind] += tmpval * a.values[p];
+        if (marker[atmpind] != j) {
+          rows.push_back(atmpind);
+          marker[atmpind] = j;
         }
-
       }
     }
 
     for (size_t i = 0; i < rows.size(); ++i) {
       int tmpind = rows[i];
       if (std::abs(acc[tmpind]) > eps) {
-        C.values.push_back(acc[tmpind]);
-        C.row_ind.push_back(tmpind);
-        ++C.col_ptr[j + 1];
+        c.values.push_back(acc[tmpind]);
+        c.row_ind.push_back(tmpind);
+        ++c.col_ptr[j + 1];
       }
       acc[tmpind] = zero;
     }
 
-    C.col_ptr[j + 1] += C.col_ptr[j];
+    c.col_ptr[j + 1] += c.col_ptr[j];
   }
 }
 
@@ -73,10 +72,9 @@ bool ZagryadskovMComplexSpMMCCSSEQ::PreProcessingImpl() {
 }
 
 bool ZagryadskovMComplexSpMMCCSSEQ::RunImpl() {
-  
-  const CCS& A = std::get<0>(GetInput());
-  const CCS& B = std::get<1>(GetInput());
-  CCS& C = GetOutput();
+  const CCS &A = std::get<0>(GetInput());
+  const CCS &B = std::get<1>(GetInput());
+  CCS &C = GetOutput();
 
   SpMM(A, B, C);
 

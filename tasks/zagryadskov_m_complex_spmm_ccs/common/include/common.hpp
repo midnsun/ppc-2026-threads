@@ -1,24 +1,22 @@
 #pragma once
 
-#include <string>
-#include <tuple>
-#include <vector>
 #include <complex>
+#include <tuple>
 
 #include "task/include/task.hpp"
 
 namespace zagryadskov_m_complex_spmm_ccs {
 
 struct CCS {
-    int m;
-    int n;
-    std::vector<int> col_ptr;
-    std::vector<int> row_ind;
-    std::vector<std::complex<double>> values;
+  int m = 0;
+  int n = 0;
+  std::vector<int> col_ptr{};
+  std::vector<int> row_ind{};
+  std::vector<std::complex<double>> values{};
 
-    CCS() = default;
-    CCS(const CCS&) = default;
-    CCS& operator=(const CCS&) = default;
+  CCS() = default;
+  CCS(const CCS &) = default;
+  CCS &operator=(const CCS &) = default;
 };
 
 using InType = std::tuple<CCS, CCS>;
