@@ -30,7 +30,9 @@ class ZagryadskovMRunPerfTestThreads : public ppc::util::BaseRunPerfTests<InType
     std::uniform_real_distribution<double> val_gen(1.0, 2.0);
     std::uniform_int_distribution<int> size_gen(0, 100);
     std::vector<int> indices(dim);
-    std::ranges::iota(indices, 0);
+    for (size_t i = 0; i < indices.size(); ++i) {
+      indices[i] = static_cast<int>(i);
+    }
 
     a.m = dim;
     a.n = dim;
