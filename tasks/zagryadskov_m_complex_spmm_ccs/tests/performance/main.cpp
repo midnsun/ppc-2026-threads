@@ -124,7 +124,7 @@ TEST_P(ZagryadskovMRunPerfTestThreads, PerfCCSTest) {
 namespace {
 
 const auto kAllPerfTasks =
-    ppc::util::MakeAllPerfTasks<InType, ZagryadskovMComplexSpMMCCSSEQ>(PPC_SETTINGS_zagryadskov_m_complex_spmm_ccs);
+    ppc::util::MakeAllPerfTasks<InType, ZagryadskovMComplexSpMMCCSSEQ, ZagryadskovMComplexSpMMCCSOMP>(PPC_SETTINGS_zagryadskov_m_complex_spmm_ccs);
 
 const auto kGtestValues = ppc::util::TupleToGTestValues(kAllPerfTasks);
 

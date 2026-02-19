@@ -151,6 +151,7 @@ TEST_P(ZagryadskovMRunFuncTestsThreads, FuncCCSTest) {
 const std::array<TestType, 3> kTestParam = {0, 1, 2};
 
 const auto kTestTasksList = std::tuple_cat(ppc::util::AddFuncTask<ZagryadskovMComplexSpMMCCSSEQ, InType>(
+    kTestParam, PPC_SETTINGS_zagryadskov_m_complex_spmm_ccs), ppc::util::AddFuncTask<ZagryadskovMComplexSpMMCCSOMP, InType>(
     kTestParam, PPC_SETTINGS_zagryadskov_m_complex_spmm_ccs));
 
 const auto kGtestValues = ppc::util::ExpandToValues(kTestTasksList);
