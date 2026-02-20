@@ -2,8 +2,7 @@
 
 #include <omp.h>
 
-#include <atomic>
-#include <numeric>
+#include <complex>
 #include <vector>
 
 #include "util/include/util.hpp"
@@ -31,7 +30,7 @@ void ZagryadskovMComplexSpMMCCSOMP::SpMM(const CCS &a, const CCS &b, CCS &c) {
   std::vector<std::vector<std::complex<double>>> t_values(num_threads);
   std::vector<std::vector<int>> t_col_ptr(num_threads);
 
-#pragma omp parallel
+#pragma omp parallel default(none)
   {
     int tid = omp_get_thread_num();
     int jstart = (tid * b.n) / num_threads;

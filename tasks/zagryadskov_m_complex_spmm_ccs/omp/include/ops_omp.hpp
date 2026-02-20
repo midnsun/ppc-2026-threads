@@ -13,7 +13,7 @@ class ZagryadskovMComplexSpMMCCSOMP : public BaseTask {
   explicit ZagryadskovMComplexSpMMCCSOMP(const InType &in);
 
  private:
-  void SpMM(const CCS &a, const CCS &b, CCS &c);
+  static void SpMM(const CCS &a, const CCS &b, CCS &c);
   bool ValidationImpl() override;
   bool PreProcessingImpl() override;
   bool RunImpl() override;

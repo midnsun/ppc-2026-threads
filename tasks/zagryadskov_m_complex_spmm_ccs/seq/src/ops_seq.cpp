@@ -24,7 +24,7 @@ void ZagryadskovMComplexSpMMCCSSEQ::SpMM(const CCS &a, const CCS &b, CCS &c) {
   std::complex<double> zero(0.0, 0.0);
   std::vector<int> rows;
   std::vector<int> marker(a.m, -1);
-  std::vector<std::complex<double>> acc(a.m);
+  std::vector<std::complex<double>> acc(a.m, zero);
   const double eps = 1e-14;
 
   for (int j = 0; j < b.n; ++j) {
@@ -58,8 +58,8 @@ void ZagryadskovMComplexSpMMCCSSEQ::SpMM(const CCS &a, const CCS &b, CCS &c) {
 }
 
 bool ZagryadskovMComplexSpMMCCSSEQ::ValidationImpl() {
-  const CCS& a = std::get<0>(GetInput());
-  const CCS& b = std::get<1>(GetInput());
+  const CCS &a = std::get<0>(GetInput());
+  const CCS &b = std::get<1>(GetInput());
   return a.n == b.m;
 }
 
