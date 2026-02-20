@@ -30,7 +30,8 @@ void ZagryadskovMComplexSpMMCCSOMP::SpMM(const CCS &a, const CCS &b, CCS &c) {
   std::vector<std::vector<std::complex<double>>> t_values(num_threads);
   std::vector<std::vector<int>> t_col_ptr(num_threads);
 
-#pragma omp parallel default(none)
+#pragma omp parallel default(none) shared(zero, eps, num_threads, t_row_ind, t_values, t_col_ptr, a, b) \
+    num_threads(ppc::util::GetNumThreads())
   {
     int tid = omp_get_thread_num();
     int jstart = (tid * b.n) / num_threads;
