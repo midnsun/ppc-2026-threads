@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include <chrono>
+#include <cstddef>
 #include <vector>
 
 #include "morozova_s_strassen_multiplication/common/include/common.hpp"
@@ -18,13 +18,13 @@ class MorozovaSStrassenMultiplicationPerfTest : public ppc::util::BaseRunPerfTes
 
     for (int i = 0; i < size; ++i) {
       for (int j = 0; j < size; ++j) {
-        input_data_.push_back(static_cast<double>(i * size + j + 1));
+        input_data_.push_back(static_cast<double>((i * size) + j + 1));
       }
     }
 
     for (int i = 0; i < size; ++i) {
       for (int j = 0; j < size; ++j) {
-        input_data_.push_back(static_cast<double>((i + j) * 2 + 1));
+        input_data_.push_back(static_cast<double>(((i + j) * 2) + 1));
       }
     }
   }
@@ -54,6 +54,7 @@ TEST_P(MorozovaSStrassenMultiplicationPerfTest, RunPerfModes) {
 }
 
 namespace {
+
 const auto kAllPerfTasks = ppc::util::MakeAllPerfTasks<InType, MorozovaSStrassenMultiplicationSEQ>(
     PPC_SETTINGS_morozova_s_strassen_multiplication);
 

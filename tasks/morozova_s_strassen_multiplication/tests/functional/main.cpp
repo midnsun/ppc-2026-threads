@@ -1,8 +1,10 @@
 #include <gtest/gtest.h>
 
-#include <algorithm>
 #include <array>
 #include <cmath>
+#include <cstddef>
+#include <string>
+#include <tuple>
 #include <vector>
 
 #include "morozova_s_strassen_multiplication/common/include/common.hpp"
@@ -36,7 +38,7 @@ class MorozovaSStrassenMultiplicationFuncTests : public ppc::util::BaseRunFuncTe
         }
         for (int i = 0; i < 4; ++i) {
           for (int j = 0; j < 4; ++j) {
-            input_data_.push_back(i * 4 + j + 1.0);
+            input_data_.push_back((i * 4) + j + 1.0);
           }
         }
         break;
@@ -73,12 +75,12 @@ class MorozovaSStrassenMultiplicationFuncTests : public ppc::util::BaseRunFuncTe
         input_data_ = {32.0};
         for (int i = 0; i < 32; ++i) {
           for (int j = 0; j < 32; ++j) {
-            input_data_.push_back(static_cast<double>(i * 32 + j + 1));
+            input_data_.push_back(static_cast<double>((i * 32) + j + 1));
           }
         }
         for (int i = 0; i < 32; ++i) {
           for (int j = 0; j < 32; ++j) {
-            input_data_.push_back(static_cast<double>((i + j) * 2 + 1));
+            input_data_.push_back(static_cast<double>(((i + j) * 2) + 1));
           }
         }
         break;
@@ -105,18 +107,20 @@ class MorozovaSStrassenMultiplicationFuncTests : public ppc::util::BaseRunFuncTe
     }
 
     int n = static_cast<int>(input_data_[0]);
-    Matrix A(n), B(n), expected(n);
+    Matrix a(n);
+    Matrix b(n);
+    Matrix expected(n);
 
     int idx = 1;
     for (int i = 0; i < n; ++i) {
       for (int j = 0; j < n; ++j) {
-        A(i, j) = input_data_[idx++];
+        a(i, j) = input_data_[idx++];
       }
     }
 
     for (int i = 0; i < n; ++i) {
       for (int j = 0; j < n; ++j) {
-        B(i, j) = input_data_[idx++];
+        b(i, j) = input_data_[idx++];
       }
     }
 
@@ -124,7 +128,7 @@ class MorozovaSStrassenMultiplicationFuncTests : public ppc::util::BaseRunFuncTe
       for (int j = 0; j < n; ++j) {
         double sum = 0.0;
         for (int k = 0; k < n; ++k) {
-          sum += A(i, k) * B(k, j);
+          sum += a(i, k) * b(k, j);
         }
         expected(i, j) = sum;
       }
@@ -137,7 +141,7 @@ class MorozovaSStrassenMultiplicationFuncTests : public ppc::util::BaseRunFuncTe
     const double eps = 1e-6;
     for (int i = 0; i < n; ++i) {
       for (int j = 0; j < n; ++j) {
-        double result_val = output_data[1 + i * n + j];
+        double result_val = output_data[1 + (i * n) + j];
         double expected_val = expected(i, j);
         if (std::abs(result_val - expected_val) > eps) {
           return false;

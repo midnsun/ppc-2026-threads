@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstddef>
+
 #include "morozova_s_strassen_multiplication/common/include/common.hpp"
 #include "task/include/task.hpp"
 
@@ -18,14 +20,14 @@ class MorozovaSStrassenMultiplicationSEQ : public BaseTask {
   bool RunImpl() override;
   bool PostProcessingImpl() override;
 
-  Matrix AddMatrix(const Matrix &A, const Matrix &B) const;
-  Matrix SubtractMatrix(const Matrix &A, const Matrix &B) const;
-  Matrix MultiplyStrassen(const Matrix &A, const Matrix &B, int leaf_size = 64) const;
-  Matrix MultiplyStandard(const Matrix &A, const Matrix &B) const;
-  void SplitMatrix(const Matrix &M, Matrix &M11, Matrix &M12, Matrix &M21, Matrix &M22) const;
-  Matrix MergeMatrices(const Matrix &M11, const Matrix &M12, const Matrix &M21, const Matrix &M22) const;
+  [[nodiscard]] Matrix AddMatrix(const Matrix &a, const Matrix &b) const;
+  [[nodiscard]] Matrix SubtractMatrix(const Matrix &a, const Matrix &b) const;
+  [[nodiscard]] Matrix MultiplyStrassen(const Matrix &a, const Matrix &b, int leaf_size = 64) const;
+  [[nodiscard]] Matrix MultiplyStandard(const Matrix &a, const Matrix &b) const;
+  void SplitMatrix(const Matrix &m, Matrix &m11, Matrix &m12, Matrix &m21, Matrix &m22) const;
+  [[nodiscard]] Matrix MergeMatrices(const Matrix &m11, const Matrix &m12, const Matrix &m21, const Matrix &m22) const;
 
-  Matrix A_, B_, C_;
+  Matrix a_, b_, c_;
   int n_;
 };
 }  // namespace morozova_s_strassen_multiplication

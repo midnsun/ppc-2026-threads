@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cmath>
+#include <cstddef>  // для size_t
 #include <string>
 #include <tuple>
 #include <vector>
@@ -17,14 +18,15 @@ struct Matrix {
   std::vector<double> data;
   int size;
 
-  Matrix() : data(), size(0) {}
-  Matrix(int n) : data(n * n, 0.0), size(n) {}
+  Matrix() : size(0) {}
+
+  explicit Matrix(int n) : data(static_cast<size_t>(n) * static_cast<size_t>(n), 0.0), size(n) {}
 
   double &operator()(int i, int j) {
-    return data[i * size + j];
+    return data[(i * size) + j];
   }
   const double &operator()(int i, int j) const {
-    return data[i * size + j];
+    return data[(i * size) + j];
   }
 
   bool operator==(const Matrix &other) const {
