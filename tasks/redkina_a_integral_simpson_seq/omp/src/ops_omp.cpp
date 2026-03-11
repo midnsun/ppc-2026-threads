@@ -13,46 +13,6 @@
 
 namespace redkina_a_integral_simpson_seq {
 
-namespace {
-
-void EvaluatePoint(const std::vector<double> &a, const std::vector<double> &h, const std::vector<int> &n,
-                   const std::vector<int> &indices, const std::function<double(const std::vector<double> &)> &func,
-                   std::vector<double> &point, double &sum) {
-  size_t dim = a.size();
-  double w_prod = 1.0;
-  for (size_t dim_idx = 0; dim_idx < dim; ++dim_idx) {
-    int idx = indices[dim_idx];
-    point[dim_idx] = a[dim_idx] + (static_cast<double>(idx) * h[dim_idx]);
-
-    int w = 0;
-    if (idx == 0 || idx == n[dim_idx]) {
-      w = 1;
-    } else if (idx % 2 == 1) {
-      w = 4;
-    } else {
-      w = 2;
-    }
-    w_prod *= static_cast<double>(w);
-  }
-  sum += w_prod * func(point);
-}
-
-bool AdvanceIndices(std::vector<int> &indices, const std::vector<int> &n) {
-  int dim = static_cast<int>(indices.size());
-  int d = dim - 1;
-  while (d >= 0 && indices[d] == n[d]) {
-    indices[d] = 0;
-    --d;
-  }
-  if (d < 0) {
-    return false;
-  }
-  ++indices[d];
-  return true;
-}
-
-}  // namespace
-
 RedkinaAIntegralSimpsonOMP::RedkinaAIntegralSimpsonOMP(const InType &in) {
   SetTypeOfTask(GetStaticTypeOfTask());
   GetInput() = in;
