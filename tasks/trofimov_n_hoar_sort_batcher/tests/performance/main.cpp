@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "trofimov_n_hoar_sort_batcher/common/include/common.hpp"
+
 #include "trofimov_n_hoar_sort_batcher/omp/include/ops_omp.hpp"
 #include "trofimov_n_hoar_sort_batcher/seq/include/ops_seq.hpp"
 #include "util/include/perf_test_util.hpp"

@@ -67,6 +67,7 @@ const auto kTestTasksList = std::tuple_cat(
     ppc::util::AddFuncTask<TrofimovNHoarSortBatcherOMP, InType>(kTestParam, PPC_SETTINGS_trofimov_n_hoar_sort_batcher),
     ppc::util::AddFuncTask<TrofimovNHoarSortBatcherSEQ, InType>(kTestParam, PPC_SETTINGS_trofimov_n_hoar_sort_batcher));
 
+
 const auto kGtestValues = ppc::util::ExpandToValues(kTestTasksList);
 const auto kTestName = TrofimovNHoarSortBatcherFuncTests::PrintFuncTestName<TrofimovNHoarSortBatcherFuncTests>;
 
