@@ -11,7 +11,7 @@
 namespace lukin_i_ench_contr_lin_hist {
 
 class LukinIPerfTestThreads : public ppc::util::BaseRunPerfTests<InType, OutType> {
-  const int image_size_ = 4096;
+  const int image_size_ = 8192;
   InType input_data_;
 
   void SetUp() override {
