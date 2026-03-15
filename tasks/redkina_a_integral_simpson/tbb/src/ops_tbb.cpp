@@ -12,7 +12,6 @@
 namespace redkina_a_integral_simpson {
 
 namespace {
-// Вспомогательная функция для вычисления вклада одного узла сетки
 double ComputeNodeContribution(size_t linear_idx, const std::vector<double> &a, const std::vector<double> &h,
                                const std::vector<int> &n, const std::vector<size_t> &strides,
                                const std::function<double(const std::vector<double> &)> &func) {
@@ -29,7 +28,7 @@ double ComputeNodeContribution(size_t linear_idx, const std::vector<double> &a, 
   double w_prod = 1.0;
   for (size_t i = 0; i < dim; ++i) {
     int idx = indices[i];
-    point[i] = a[i] + (static_cast<double>(idx) * h[i]);  // скобки для ясности приоритета
+    point[i] = a[i] + (static_cast<double>(idx) * h[i]);
 
     int w = 0;
     if (idx == 0 || idx == n[i]) {
@@ -81,7 +80,6 @@ bool RedkinaAIntegralSimpsonTBB::PreProcessingImpl() {
 }
 
 bool RedkinaAIntegralSimpsonTBB::RunImpl() {
-  // Дополнительные проверки для анализатора
   if (!func_) {
     return false;
   }
@@ -90,19 +88,16 @@ bool RedkinaAIntegralSimpsonTBB::RunImpl() {
     return false;
   }
 
-  // Шаги интегрирования по каждому измерению
   std::vector<double> h(dim);
   for (size_t i = 0; i < dim; ++i) {
     h[i] = (b_[i] - a_[i]) / static_cast<double>(n_[i]);
   }
 
-  // Произведение шагов
   double h_prod = 1.0;
   for (size_t i = 0; i < dim; ++i) {
     h_prod *= h[i];
   }
 
-  // Размеры сетки по каждому измерению (количество точек = n_i + 1)
   std::vector<int> dim_sizes(dim);
   size_t total_points = 1;
   for (size_t i = 0; i < dim; ++i) {
@@ -110,15 +105,12 @@ bool RedkinaAIntegralSimpsonTBB::RunImpl() {
     total_points *= static_cast<size_t>(dim_sizes[i]);
   }
 
-  // Вычисление strides для перехода от линейного индекса к многомерному
-  // Порядок: последнее измерение изменяется быстрее всего (младший разряд)
   std::vector<size_t> strides(dim);
   strides[dim - 1] = 1;
   for (size_t i = dim - 1; i > 0; --i) {
     strides[i - 1] = strides[i] * static_cast<size_t>(dim_sizes[i]);
   }
 
-  // Параллельное суммирование вкладов с использованием TBB
   double sum = tbb::parallel_reduce(tbb::blocked_range<size_t>(0, total_points), 0.0,
                                     [&](const tbb::blocked_range<size_t> &r, double local_sum) {
     for (size_t linear_idx = r.begin(); linear_idx != r.end(); ++linear_idx) {
@@ -127,7 +119,6 @@ bool RedkinaAIntegralSimpsonTBB::RunImpl() {
     return local_sum;
   }, [](double x, double y) -> double { return x + y; });
 
-  // Знаменатель формулы Симпсона (3^dim)
   double denominator = 1.0;
   for (size_t i = 0; i < dim; ++i) {
     denominator *= 3.0;
