@@ -47,7 +47,7 @@ TEST_P(RomanovARunFuncTestsThreads, GaussFilter) {
   ExecuteTest(GetParam());
 }
 
-const std::array<TestType, 7> kTestParam = {
+const std::array<TestType, 8> kTestParam = {
     std::make_tuple(1, 1, std::vector<uint8_t>{0, 0, 0}, std::vector<uint8_t>{0, 0, 0}, "Test1"),
     std::make_tuple(2, 1, std::vector<uint8_t>{224, 143, 37, 137, 16, 22}, std::vector<uint8_t>{73, 38, 12, 62, 22, 10},
                     "Test2"),
@@ -63,7 +63,9 @@ const std::array<TestType, 7> kTestParam = {
                     std::vector<uint8_t>{11, 11, 11, 13, 13, 13, 25, 25, 25, 28, 28, 28, 26, 26, 26, 28, 28, 28},
                     "Test6"),
     std::make_tuple(4, 1, std::vector<uint8_t>{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-                    std::vector<uint8_t>{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, "Test7")};
+                    std::vector<uint8_t>{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, "Test7"),
+    std::make_tuple(100, 100, std::vector<uint8_t>(static_cast<size_t>((100 * 100) * 3), 0),
+                    std::vector<uint8_t>(static_cast<size_t>((100 * 100) * 3), 0), "Test8")};
 
 const auto kTestTasksList = std::tuple_cat(
     ppc::util::AddFuncTask<RomanovAGaussBlockOMP, InType>(kTestParam, PPC_SETTINGS_romanov_a_gauss_block),
