@@ -25,7 +25,6 @@ class MorozovaSStrassenMultiplicationOMP : public BaseTask {
   static void SplitMatrix(const Matrix &m, Matrix &m11, Matrix &m12, Matrix &m21, Matrix &m22);
   static Matrix MergeMatrices(const Matrix &m11, const Matrix &m12, const Matrix &m21, const Matrix &m22);
 
-  static Matrix MultiplyStrassenParallel(const Matrix &a, const Matrix &b, int leaf_size, int depth = 0);
   static Matrix MultiplyStandardParallel(const Matrix &a, const Matrix &b);
 
   Matrix a_, b_, c_;

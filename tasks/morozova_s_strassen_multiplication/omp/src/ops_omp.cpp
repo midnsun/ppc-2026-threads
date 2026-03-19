@@ -112,13 +112,11 @@ Matrix MultiplyStandardParallelImpl(const Matrix &a, const Matrix &b) {
   return result;
 }
 
-void ComputeStrassenLevel(const Matrix &a, const Matrix &b, Matrix &result, int leaf_size, int max_depth,
-                          int current_depth) {
+Matrix MultiplyStrassenIterative(const Matrix &a, const Matrix &b, int leaf_size) {
   int n = a.size;
 
   if (n <= leaf_size || n % 2 != 0) {
-    result = MultiplyStandardParallelImpl(a, b);
-    return;
+    return MultiplyStandardParallelImpl(a, b);
   }
 
   int half = n / 2;
@@ -133,130 +131,23 @@ void ComputeStrassenLevel(const Matrix &a, const Matrix &b, Matrix &result, int 
   Matrix b21(half);
   Matrix b22(half);
 
-  Matrix c11(half);
-  Matrix c12(half);
-  Matrix c21(half);
-  Matrix c22(half);
-
   SplitMatrixImpl(a, a11, a12, a21, a22);
   SplitMatrixImpl(b, b11, b12, b21, b22);
 
-  std::vector<Matrix> p(7, Matrix(half));
+  Matrix p1 = MultiplyStandardParallelImpl(a11, SubtractMatrixImpl(b12, b22));
+  Matrix p2 = MultiplyStandardParallelImpl(AddMatrixImpl(a11, a12), b22);
+  Matrix p3 = MultiplyStandardParallelImpl(AddMatrixImpl(a21, a22), b11);
+  Matrix p4 = MultiplyStandardParallelImpl(a22, SubtractMatrixImpl(b21, b11));
+  Matrix p5 = MultiplyStandardParallelImpl(AddMatrixImpl(a11, a22), AddMatrixImpl(b11, b22));
+  Matrix p6 = MultiplyStandardParallelImpl(SubtractMatrixImpl(a12, a22), AddMatrixImpl(b21, b22));
+  Matrix p7 = MultiplyStandardParallelImpl(SubtractMatrixImpl(a11, a21), AddMatrixImpl(b11, b12));
 
-  if (current_depth < max_depth) {
-#pragma omp parallel sections default(none) \
-    shared(a11, a12, a21, a22, b11, b12, b21, b22, leaf_size, max_depth, current_depth, p, half)
-    {
-#pragma omp section
-      {
-        Matrix temp = SubtractMatrixImpl(b12, b22);
-        Matrix temp_result;
-        ComputeStrassenLevel(a11, temp, temp_result, leaf_size, max_depth, current_depth + 1);
-        p[0] = std::move(temp_result);
-      }
+  Matrix c11 = AddMatrixImpl(SubtractMatrixImpl(AddMatrixImpl(p5, p4), p2), p6);
+  Matrix c12 = AddMatrixImpl(p1, p2);
+  Matrix c21 = AddMatrixImpl(p3, p4);
+  Matrix c22 = SubtractMatrixImpl(SubtractMatrixImpl(AddMatrixImpl(p5, p1), p3), p7);
 
-#pragma omp section
-      {
-        Matrix temp = AddMatrixImpl(a11, a12);
-        Matrix temp_result;
-        ComputeStrassenLevel(temp, b22, temp_result, leaf_size, max_depth, current_depth + 1);
-        p[1] = std::move(temp_result);
-      }
-
-#pragma omp section
-      {
-        Matrix temp = AddMatrixImpl(a21, a22);
-        Matrix temp_result;
-        ComputeStrassenLevel(temp, b11, temp_result, leaf_size, max_depth, current_depth + 1);
-        p[2] = std::move(temp_result);
-      }
-
-#pragma omp section
-      {
-        Matrix temp = SubtractMatrixImpl(b21, b11);
-        Matrix temp_result;
-        ComputeStrassenLevel(a22, temp, temp_result, leaf_size, max_depth, current_depth + 1);
-        p[3] = std::move(temp_result);
-      }
-
-#pragma omp section
-      {
-        Matrix temp1 = AddMatrixImpl(a11, a22);
-        Matrix temp2 = AddMatrixImpl(b11, b22);
-        Matrix temp_result;
-        ComputeStrassenLevel(temp1, temp2, temp_result, leaf_size, max_depth, current_depth + 1);
-        p[4] = std::move(temp_result);
-      }
-
-#pragma omp section
-      {
-        Matrix temp1 = SubtractMatrixImpl(a12, a22);
-        Matrix temp2 = AddMatrixImpl(b21, b22);
-        Matrix temp_result;
-        ComputeStrassenLevel(temp1, temp2, temp_result, leaf_size, max_depth, current_depth + 1);
-        p[5] = std::move(temp_result);
-      }
-
-#pragma omp section
-      {
-        Matrix temp1 = SubtractMatrixImpl(a11, a21);
-        Matrix temp2 = AddMatrixImpl(b11, b12);
-        Matrix temp_result;
-        ComputeStrassenLevel(temp1, temp2, temp_result, leaf_size, max_depth, current_depth + 1);
-        p[6] = std::move(temp_result);
-      }
-    }
-  } else {
-    Matrix temp1;
-    Matrix temp2;
-    Matrix temp_result;
-
-    temp1 = SubtractMatrixImpl(b12, b22);
-    ComputeStrassenLevel(a11, temp1, temp_result, leaf_size, max_depth, current_depth + 1);
-    p[0] = std::move(temp_result);
-
-    temp1 = AddMatrixImpl(a11, a12);
-    ComputeStrassenLevel(temp1, b22, temp_result, leaf_size, max_depth, current_depth + 1);
-    p[1] = std::move(temp_result);
-
-    temp1 = AddMatrixImpl(a21, a22);
-    ComputeStrassenLevel(temp1, b11, temp_result, leaf_size, max_depth, current_depth + 1);
-    p[2] = std::move(temp_result);
-
-    temp1 = SubtractMatrixImpl(b21, b11);
-    ComputeStrassenLevel(a22, temp1, temp_result, leaf_size, max_depth, current_depth + 1);
-    p[3] = std::move(temp_result);
-
-    temp1 = AddMatrixImpl(a11, a22);
-    temp2 = AddMatrixImpl(b11, b22);
-    ComputeStrassenLevel(temp1, temp2, temp_result, leaf_size, max_depth, current_depth + 1);
-    p[4] = std::move(temp_result);
-
-    temp1 = SubtractMatrixImpl(a12, a22);
-    temp2 = AddMatrixImpl(b21, b22);
-    ComputeStrassenLevel(temp1, temp2, temp_result, leaf_size, max_depth, current_depth + 1);
-    p[5] = std::move(temp_result);
-
-    temp1 = SubtractMatrixImpl(a11, a21);
-    temp2 = AddMatrixImpl(b11, b12);
-    ComputeStrassenLevel(temp1, temp2, temp_result, leaf_size, max_depth, current_depth + 1);
-    p[6] = std::move(temp_result);
-  }
-
-  Matrix temp;
-
-  temp = AddMatrixImpl(p[4], p[3]);
-  temp = SubtractMatrixImpl(temp, p[1]);
-  c11 = AddMatrixImpl(temp, p[5]);
-
-  c12 = AddMatrixImpl(p[0], p[1]);
-  c21 = AddMatrixImpl(p[2], p[3]);
-
-  temp = AddMatrixImpl(p[4], p[0]);
-  temp = SubtractMatrixImpl(temp, p[2]);
-  c22 = SubtractMatrixImpl(temp, p[6]);
-
-  result = MergeMatricesImpl(c11, c12, c21, c22);
+  return MergeMatricesImpl(c11, c12, c21, c22);
 }
 
 }  // namespace
@@ -322,7 +213,7 @@ bool MorozovaSStrassenMultiplicationOMP::RunImpl() {
   if (n_ <= leaf_size) {
     c_ = MultiplyStandardParallelImpl(a_, b_);
   } else {
-    ComputeStrassenLevel(a_, b_, c_, leaf_size, kMaxParallelDepth, 0);
+    c_ = MultiplyStrassenIterative(a_, b_, leaf_size);
   }
 
   return true;
@@ -370,9 +261,7 @@ Matrix MorozovaSStrassenMultiplicationOMP::MergeMatrices(const Matrix &m11, cons
 }
 
 Matrix MorozovaSStrassenMultiplicationOMP::MultiplyStrassen(const Matrix &a, const Matrix &b, int leaf_size) {
-  Matrix result;
-  ComputeStrassenLevel(a, b, result, leaf_size, kMaxParallelDepth, 0);
-  return result;
+  return MultiplyStrassenIterative(a, b, leaf_size);
 }
 
 Matrix MorozovaSStrassenMultiplicationOMP::MultiplyStandardParallel(const Matrix &a, const Matrix &b) {
