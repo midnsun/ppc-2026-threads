@@ -1,5 +1,7 @@
 #include <gtest/gtest.h>
+#include <stb/stb_image.h>
 
+#include <array>
 #include <cmath>
 #include <cstddef>
 #include <string>
