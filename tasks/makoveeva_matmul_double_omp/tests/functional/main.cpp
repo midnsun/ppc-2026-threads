@@ -21,10 +21,10 @@ class MatmulDoubleOMPFuncTest : public ppc::util::BaseRunFuncTests<InType, OutTy
 
  protected:
   void SetUp() override {
-    // Получаем параметры теста напрямую через GetParam()
-    const auto &test_params = GetParam();
-    // Берем второй элемент кортежа (TestType)
-    const TestType &params = std::get<1>(test_params);
+    // Правильный способ получить TestType из GetParam()
+    const auto &gtest_param = GetParam();
+    // gtest_param - это tuple<TestType, string, ...>
+    const TestType &params = std::get<0>(gtest_param);
 
     const size_t n = std::get<0>(params);
     const size_t size = n * n;
