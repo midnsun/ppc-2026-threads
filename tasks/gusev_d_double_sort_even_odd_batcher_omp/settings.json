@@ -1,8 +1,10 @@
 {
-  "all": false,
-  "mpi": false,
-  "omp": true,
-  "seq": false,
-  "stl": false,
-  "tbb": false
+  "tasks": {
+    "all": "disabled",
+    "omp": "enabled",
+    "seq": "disabled",
+    "stl": "disabled",
+    "tbb": "disabled"
+  },
+  "tasks_type": "threads"
 }
