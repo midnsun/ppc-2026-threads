@@ -13,31 +13,31 @@
 namespace kopilov_d_vertical_gauss_filter {
 
 class GaussianFilterPerformanceTests : public ppc::util::BaseRunPerfTests<InType, OutType> {
-  static constexpr int IMAGE_WIDTH = 8192;
-  static constexpr int IMAGE_HEIGHT = 8192;
-  InType inputImage{};
+  static constexpr int kImageWidth = 8192;
+  static constexpr int kImageHeight = 8192;
+  InType inputImage_{};
 
   void SetUp() override {
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_int_distribution<int> dist(0, 255);
 
-    inputImage.width = IMAGE_WIDTH;
-    inputImage.height = IMAGE_HEIGHT;
+    inputImage_.width = kImageWidth;
+    inputImage_.height = kImageHeight;
 
-    inputImage.data.resize(static_cast<size_t>(IMAGE_WIDTH) * static_cast<size_t>(IMAGE_HEIGHT));
-    for (auto &val : inputImage.data) {
+    inputImage_.data.resize(static_cast<size_t>(kImageWidth) * static_cast<size_t>(kImageHeight));
+    for (auto &val : inputImage_.data) {
       val = static_cast<std::uint8_t>(dist(gen));
     }
   }
 
   bool CheckTestOutputData(OutType &output_data) final {
-    return output_data.width == inputImage.width && output_data.height == inputImage.height &&
-           output_data.data.size() == inputImage.data.size();
+    return output_data.width == inputImage_.width && output_data.height == inputImage_.height &&
+           output_data.data.size() == inputImage_.data.size();
   }
 
   InType GetTestInputData() final {
-    return inputImage;
+    return inputImage_;
   }
 };
 

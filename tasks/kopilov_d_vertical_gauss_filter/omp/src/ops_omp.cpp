@@ -14,10 +14,10 @@
 namespace kopilov_d_vertical_gauss_filter {
 
 namespace {
-const int DIVISOR = 16;
-const std::array<std::array<int, 3>, 3> GAUSS_KERNEL = {{{1, 2, 1}, {2, 4, 2}, {1, 2, 1}}};
+const int kDivisor = 16;
+const std::array<std::array<int, 3>, 3> kGaussKernel = {{{1, 2, 1}, {2, 4, 2}, {1, 2, 1}}};
 
-uint8_t get_pixel_mirrored_omp(const std::vector<uint8_t> &image, int x, int y, int width, int height) {
+uint8_t GetPixelMirroredOmp(const std::vector<uint8_t> &image, int x, int y, int width, int height) {
   int new_x = x;
   int new_y = y;
 
@@ -67,17 +67,17 @@ bool KopilovDVerticalGaussFilterOMP::RunImpl() {
   int num_threads = ppc::util::GetNumThreads();
   omp_set_num_threads(num_threads);
 
-#pragma omp parallel for
+#pragma omp parallel for default(none) shared(source_image, destination_image, width, height, kGaussKernel, kDivisor)
   for (int j = 0; j < height; ++j) {
     for (int i = 0; i < width; ++i) {
       int pixel_sum = 0;
       for (int kernel_y = -1; kernel_y <= 1; ++kernel_y) {
         for (int kernel_x = -1; kernel_x <= 1; ++kernel_x) {
-          pixel_sum += GAUSS_KERNEL[kernel_y + 1][kernel_x + 1] *
-                       get_pixel_mirrored_omp(source_image, i + kernel_x, j + kernel_y, width, height);
+          pixel_sum += kGaussKernel[kernel_y + 1][kernel_x + 1] *
+                       GetPixelMirroredOmp(source_image, i + kernel_x, j + kernel_y, width, height);
         }
       }
-      destination_image[(j * width) + i] = static_cast<uint8_t>(pixel_sum / DIVISOR);
+      destination_image[(j * width) + i] = static_cast<uint8_t>(pixel_sum / kDivisor);
     }
   }
 
