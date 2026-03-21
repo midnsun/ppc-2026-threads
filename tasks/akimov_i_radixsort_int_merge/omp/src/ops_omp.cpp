@@ -2,6 +2,8 @@
 
 #include <omp.h>
 
+#include <climits>
+#include <cstddef>
 #include <cstdint>
 #include <vector>
 
@@ -32,7 +34,7 @@ bool AkimovIRadixSortIntMergeOMP::RunImpl() {
 
   constexpr int32_t kSignMask = INT32_MIN;  // 0x80000000
 
-#pragma omp parallel for
+#pragma omp parallel for default(none) shared(arr, kSignMask)
   for (int i = 0; i < static_cast<int>(arr.size()); ++i) {
     arr[i] ^= kSignMask;
   }
@@ -45,7 +47,7 @@ bool AkimovIRadixSortIntMergeOMP::RunImpl() {
 
     std::vector<std::vector<int>> local_counts(num_threads, std::vector<int>(256, 0));
 
-#pragma omp parallel
+#pragma omp parallel default(none) shared(arr, byte_pos, local_counts)
     {
       int tid = omp_get_thread_num();
       std::vector<int> &local_count = local_counts[tid];
@@ -57,9 +59,9 @@ bool AkimovIRadixSortIntMergeOMP::RunImpl() {
     }
 
     std::vector<int> count(256, 0);
-    for (int t = 0; t < num_threads; ++t) {
+    for (int thread_idx = 0; thread_idx < num_threads; ++thread_idx) {
       for (int i = 0; i < 256; ++i) {
-        count[i] += local_counts[t][i];
+        count[i] += local_counts[thread_idx][i];
       }
     }
 
@@ -75,7 +77,7 @@ bool AkimovIRadixSortIntMergeOMP::RunImpl() {
     arr.swap(temp);
   }
 
-#pragma omp parallel for
+#pragma omp parallel for default(none) shared(arr, kSignMask)
   for (int i = 0; i < static_cast<int>(arr.size()); ++i) {
     arr[i] ^= kSignMask;
   }
