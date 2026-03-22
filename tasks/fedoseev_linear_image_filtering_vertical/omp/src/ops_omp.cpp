@@ -11,11 +11,13 @@
 
 namespace fedoseev_linear_image_filtering_vertical {
 
-static int GetPixel(const std::vector<int> &src, int w, int h, int col, int row) {
+namespace {
+int GetPixel(const std::vector<int> &src, int w, int h, int col, int row) {
   col = std::clamp(col, 0, w - 1);
   row = std::clamp(row, 0, h - 1);
-  return src[static_cast<size_t>(row) * static_cast<size_t>(w) + static_cast<size_t>(col)];
+  return src[(static_cast<size_t>(row) * static_cast<size_t>(w)) + static_cast<size_t>(col)];
 }
+}  // namespace
 
 LinearImageFilteringVerticalOMP::LinearImageFilteringVerticalOMP(const InType &in) {
   SetTypeOfTask(GetStaticTypeOfTask());
