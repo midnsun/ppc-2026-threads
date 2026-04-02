@@ -1,6 +1,7 @@
 #include "zagryadskov_m_complex_spmm_ccs/stl/include/ops_stl.hpp"
 
 #include <complex>
+#include <functional>
 #include <thread>
 #include <vector>
 
@@ -32,7 +33,7 @@ void ZagryadskovMComplexSpMMCCSSTL::SpMMSymbolic(const CCS &a, const CCS &b, std
         }
       }
     }
-    col_ptr[j + 1] = count;
+    col_ptr[j + 1] += count;
   }
 }
 
@@ -85,18 +86,17 @@ void ZagryadskovMComplexSpMMCCSSTL::SpMM(const CCS &a, const CCS &b, CCS &c) {
 
   std::complex<double> zero(0.0, 0.0);
   const double eps = 1e-14;
+  c.col_ptr.assign(c.n + 1, 0);
 
-  for (int t = 0; t < num_threads; ++t) {
-    int jstart = (t * b.n) / num_threads;
-    int jend = ((t + 1) * b.n) / num_threads;
-    threads[t] = std::thread(SpMMSymbolic, std::cref(a), std::cref(b), std::ref(c.col_ptr), jstart, jend);
+  for (int tid = 0; tid < num_threads; ++tid) {
+    int jstart = (tid * b.n) / num_threads;
+    int jend = ((tid + 1) * b.n) / num_threads;
+    threads[tid] = std::thread(SpMMSymbolic, std::cref(a), std::cref(b), std::ref(c.col_ptr), jstart, jend);
   }
   for (auto &th : threads) {
     th.join();
   }
 
-  c.col_ptr.resize(c.n + 1);
-  c.col_ptr[0] = 0;
   for (int j = 0; j < c.n; ++j) {
     c.col_ptr[j + 1] += c.col_ptr[j];
   }
@@ -104,10 +104,11 @@ void ZagryadskovMComplexSpMMCCSSTL::SpMM(const CCS &a, const CCS &b, CCS &c) {
   c.row_ind.resize(nnz);
   c.values.resize(nnz);
 
-  for (int t = 0; t < num_threads; ++t) {
-    int jstart = (t * b.n) / num_threads;
-    int jend = ((t + 1) * b.n) / num_threads;
-    threads[t] = std::thread(SpMMNumeric, std::cref(a), std::cref(b), std::ref(c), std::cref(zero), eps, jstart, jend);
+  for (int tid = 0; tid < num_threads; ++tid) {
+    int jstart = (tid * b.n) / num_threads;
+    int jend = ((tid + 1) * b.n) / num_threads;
+    threads[tid] =
+        std::thread(SpMMNumeric, std::cref(a), std::cref(b), std::ref(c), std::cref(zero), eps, jstart, jend);
   }
   for (auto &th : threads) {
     th.join();
