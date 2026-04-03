@@ -256,7 +256,7 @@ void ZagryadskovMComplexSpMMCCSALL::GatherC(CCS &c, CCS &c_local, int rank, int 
       MPI_Recv(tmp.data(), recvcounts[proc], MPI_INT, proc, 0, MPI_COMM_WORLD, &st);
 
       for (int j = 1; j < recvcounts[proc]; ++j) {
-        c.col_ptr[col_offset - 1 + j] = nz_offset + tmp[j];
+        c.col_ptr[col_offset + j] = nz_offset + tmp[j];
       }
 
       nz_offset += tmp.back();
