@@ -228,7 +228,7 @@ void ZagryadskovMComplexSpMMCCSALL::GatherC(CCS &c, CCS &c_local, int rank, int 
   MPI_Gatherv(c_local.row_ind.data(), local_nnz, MPI_INT, c.row_ind.data(), recvcounts.data(), displs.data(), MPI_INT,
               0, MPI_COMM_WORLD);
   MPI_Gatherv(c_local.values.data(), local_nnz, MPI_C_DOUBLE_COMPLEX, c.values.data(), recvcounts.data(), displs.data(),
-              MPI_BYTE, 0, MPI_COMM_WORLD);
+              MPI_C_DOUBLE_COMPLEX, 0, MPI_COMM_WORLD);
 
   MPI_Gather(&local_cols, 1, MPI_INT, recvcounts.data(), 1, MPI_INT, 0, MPI_COMM_WORLD);
 
@@ -243,7 +243,7 @@ void ZagryadskovMComplexSpMMCCSALL::GatherC(CCS &c, CCS &c_local, int rank, int 
   }
 
   if (rank != 0) {
-    MPI_Send(c_local.col_ptr.data(), recvcounts[rank], MPI_INT, 0, 0, MPI_COMM_WORLD);
+    MPI_Send(c_local.col_ptr.data(), c_local.n + 1, MPI_INT, 0, 0, MPI_COMM_WORLD);
   }
 
   if (rank == 0) {
