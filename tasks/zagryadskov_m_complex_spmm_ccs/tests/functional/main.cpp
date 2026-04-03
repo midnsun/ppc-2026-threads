@@ -103,14 +103,20 @@ class ZagryadskovMRunFuncTestsThreads : public ppc::util::BaseRunFuncTests<InTyp
     bool f4 = test_result_.row_ind.size() != output_data.row_ind.size();
     bool f5 = test_result_.values.size() != output_data.values.size();
 
+    std::cout << "m: " << output_data.m << "; n: " << output_data.n << "; colsize: " << output_data.col_ptr.size()
+              << "; rowindsize: " << output_data.row_ind.size() << "; valuessize: " << output_data.values.size()
+              << std::endl;
+
     if (f1 || f2 || f3 || f4 || f5) {
       result = false;
     }
     for (size_t i = 0; i < test_result_.col_ptr.size(); ++i) {
+      std::cout << output_data.col_ptr[i] << " ";
       if (test_result_.col_ptr[i] != output_data.col_ptr[i]) {
         result = false;
       }
     }
+    std::cout << std::endl;
 
     for (int j = 0; j < test_result_.n; ++j) {
       std::vector<std::pair<int, std::complex<double>>> test;
@@ -124,13 +130,16 @@ class ZagryadskovMRunFuncTestsThreads : public ppc::util::BaseRunFuncTests<InTyp
       std::ranges::sort(output, cmp);
 
       for (size_t i = 0; i < test.size(); ++i) {
+        std::cout << output[i].first << " " << output[i].second << " ";
         bool f6 = test[i].first != output[i].first;
         bool f7 = std::abs(test[i].second - output[i].second) > eps;
         if (f6 || f7) {
           result = false;
         }
       }
+      std::cout << std::endl;
     }
+    std::cout << std::endl;
 
     return result;
   }
