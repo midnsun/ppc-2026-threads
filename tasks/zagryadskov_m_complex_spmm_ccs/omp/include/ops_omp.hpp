@@ -16,10 +16,13 @@ class ZagryadskovMComplexSpMMCCSOMP : public BaseTask {
   explicit ZagryadskovMComplexSpMMCCSOMP(const InType &in);
 
  private:
-  static void SpMM(const CCS &a, const CCS &b, CCS &c);
-  static void SpMMkernel(const CCS &a, const CCS &b, const std::complex<double> &zero, double eps,
-                         std::vector<std::vector<int>> &col_rows,
-                         std::vector<std::vector<std::complex<double>>> &col_vals);
+  inline static void SpMM(const CCS &a, const CCS &b, CCS &c);
+  inline static void SpMMSymbolic(const CCS &a, const CCS &b, std::vector<int> &col_ptr, int jstart, int jend);
+  inline static void SpMMNumeric(const CCS &a, const CCS &b, CCS &c, const std::complex<double> &zero, int jstart,
+                                 int jend);
+  inline static void SpMMKernel(const CCS &a, const CCS &b, CCS &c, const std::complex<double> &zero,
+                                std::vector<int> &rows, std::vector<std::complex<double>> &acc,
+                                std::vector<int> &marker, int j);
   bool ValidationImpl() override;
   bool PreProcessingImpl() override;
   bool RunImpl() override;
