@@ -248,7 +248,7 @@ void ZagryadskovMComplexSpMMCCSALL::GatherC(CCS &c, CCS &c_local, int rank, int 
   }
 
   if (rank == 0) {
-    std::ranges::copy(c_local.col_ptr.begin(), c_local.col_ptr.end(), std::back_inserter(c.col_ptr));
+    std::ranges::copy(c_local.col_ptr, c.col_ptr.begin());
 
     int nz_offset = c_local.col_ptr.back();
     int col_offset = c_local.n;
