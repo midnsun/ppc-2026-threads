@@ -16,6 +16,7 @@
 #include "zagryadskov_m_complex_spmm_ccs/common/include/common.hpp"
 #include "zagryadskov_m_complex_spmm_ccs/omp/include/ops_omp.hpp"
 #include "zagryadskov_m_complex_spmm_ccs/seq/include/ops_seq.hpp"
+#include "zagryadskov_m_complex_spmm_ccs/stl/include/ops_stl.hpp"
 #include "zagryadskov_m_complex_spmm_ccs/tbb/include/ops_tbb.hpp"
 
 namespace zagryadskov_m_complex_spmm_ccs {
@@ -157,6 +158,8 @@ const auto kTestTasksList = std::tuple_cat(ppc::util::AddFuncTask<ZagryadskovMCo
                                            ppc::util::AddFuncTask<ZagryadskovMComplexSpMMCCSOMP, InType>(
                                                kTestParam, PPC_SETTINGS_zagryadskov_m_complex_spmm_ccs),
                                            ppc::util::AddFuncTask<ZagryadskovMComplexSpMMCCSTBB, InType>(
+                                               kTestParam, PPC_SETTINGS_zagryadskov_m_complex_spmm_ccs),
+                                           ppc::util::AddFuncTask<ZagryadskovMComplexSpMMCCSSTL, InType>(
                                                kTestParam, PPC_SETTINGS_zagryadskov_m_complex_spmm_ccs),
                                            ppc::util::AddFuncTask<ZagryadskovMComplexSpMMCCSALL, InType>(
                                                kTestParam, PPC_SETTINGS_zagryadskov_m_complex_spmm_ccs));
