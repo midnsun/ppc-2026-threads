@@ -12,6 +12,8 @@
 #include "zagryadskov_m_complex_spmm_ccs/common/include/common.hpp"
 #include "zagryadskov_m_complex_spmm_ccs/omp/include/ops_omp.hpp"
 #include "zagryadskov_m_complex_spmm_ccs/seq/include/ops_seq.hpp"
+#include "zagryadskov_m_complex_spmm_ccs/stl/include/ops_stl.hpp"
+#include "zagryadskov_m_complex_spmm_ccs/tbb/include/ops_tbb.hpp"
 
 namespace zagryadskov_m_complex_spmm_ccs {
 
@@ -117,7 +119,8 @@ TEST_P(ZagryadskovMRunPerfTestThreads, PerfCCSTest) {
 namespace {
 
 const auto kAllPerfTasks =
-    ppc::util::MakeAllPerfTasks<InType, ZagryadskovMComplexSpMMCCSSEQ, ZagryadskovMComplexSpMMCCSOMP>(
+    ppc::util::MakeAllPerfTasks<InType, ZagryadskovMComplexSpMMCCSSEQ, ZagryadskovMComplexSpMMCCSOMP,
+                                ZagryadskovMComplexSpMMCCSTBB, ZagryadskovMComplexSpMMCCSSTL>(
         PPC_SETTINGS_zagryadskov_m_complex_spmm_ccs);
 
 const auto kGtestValues = ppc::util::TupleToGTestValues(kAllPerfTasks);
