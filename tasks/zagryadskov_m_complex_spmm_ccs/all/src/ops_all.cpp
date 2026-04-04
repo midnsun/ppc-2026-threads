@@ -5,7 +5,6 @@
 
 #include <algorithm>
 #include <complex>
-#include <ranges>
 #include <stdexcept>
 #include <tuple>
 #include <vector>

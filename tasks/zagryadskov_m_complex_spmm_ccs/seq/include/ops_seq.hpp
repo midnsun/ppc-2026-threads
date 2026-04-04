@@ -1,5 +1,8 @@
 #pragma once
 
+#include <complex>
+#include <vector>
+
 #include "task/include/task.hpp"
 #include "zagryadskov_m_complex_spmm_ccs/common/include/common.hpp"
 
