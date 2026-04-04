@@ -5,6 +5,7 @@
 
 #include <algorithm>
 #include <complex>
+#include <ranges>
 #include <stdexcept>
 #include <tuple>
 #include <vector>
@@ -205,7 +206,7 @@ void ZagryadskovMComplexSpMMCCSALL::ScatterB(const CCS &b, CCS &b_local, const s
 
 void ZagryadskovMComplexSpMMCCSALL::GatherC(CCS &c, CCS &c_local, int rank, int size) {
   MPI_Status st;
-  int local_nnz = c_local.values.size();
+  int local_nnz = static_cast<int>(c_local.values.size());
   int total_nnz = 0;
   int local_cols = c_local.n;
   int total_cols = 0;
@@ -247,7 +248,7 @@ void ZagryadskovMComplexSpMMCCSALL::GatherC(CCS &c, CCS &c_local, int rank, int 
   }
 
   if (rank == 0) {
-    std::copy(c_local.col_ptr.begin(), c_local.col_ptr.end(), c.col_ptr.begin());
+    std::ranges::copy(c_local.col_ptr.begin(), c_local.col_ptr.end(), std::back_inserter(c.col_ptr));
 
     int nz_offset = c_local.col_ptr.back();
     int col_offset = c_local.n;
