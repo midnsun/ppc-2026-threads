@@ -1,8 +1,8 @@
 #include "akimov_i_radixsort_int_merge/tbb/include/ops_tbb.hpp"
 
-#include <tbb/tbb.h>
-#include <oneapi/tbb/parallel_for.h>
 #include <oneapi/tbb/blocked_range.h>
+#include <oneapi/tbb/parallel_for.h>
+#include <tbb/tbb.h>
 
 #include <algorithm>
 #include <array>
@@ -53,7 +53,9 @@ void CountingSortStep(std::vector<int>::iterator in_begin, std::vector<int>::ite
 
 void RadixSortLocal(std::vector<int>::iterator begin, std::vector<int>::iterator end) {
   size_t n = std::distance(begin, end);
-  if (n < 2) return;
+  if (n < 2) {
+    return;
+  }
 
   std::vector<int> temp(n);
 
@@ -85,10 +87,14 @@ bool AkimovIRadixSortIntMergeTBB::PreProcessingImpl() {
 bool AkimovIRadixSortIntMergeTBB::RunImpl() {
   auto &arr = GetOutput();
   int n = static_cast<int>(arr.size());
-  if (n == 0) return true;
+  if (n == 0) {
+    return true;
+  }
 
   int num_threads = ppc::util::GetNumThreads();
-  if (n < num_threads * 100) num_threads = 1;
+  if (n < num_threads * 100) {
+    num_threads = 1;
+  }
 
   if (num_threads == 1) {
     RadixSortLocal(arr.begin(), arr.end());
@@ -105,28 +111,26 @@ bool AkimovIRadixSortIntMergeTBB::RunImpl() {
   }
   offsets[num_threads] = n;
 
-  tbb::parallel_for(tbb::blocked_range<int>(0, num_threads),
-    [&](const tbb::blocked_range<int>& range) {
-      for (int i = range.begin(); i != range.end(); ++i) {
-        auto begin = arr.begin() + offsets[i];
-        auto end = arr.begin() + offsets[i + 1];
-        RadixSortLocal(begin, end);
-      }
-    });
+  tbb::parallel_for(tbb::blocked_range<int>(0, num_threads), [&](const tbb::blocked_range<int> &range) {
+    for (int i = range.begin(); i != range.end(); ++i) {
+      auto begin = arr.begin() + offsets[i];
+      auto end = arr.begin() + offsets[i + 1];
+      RadixSortLocal(begin, end);
+    }
+  });
 
   for (int step = 1; step < num_threads; step *= 2) {
-    tbb::parallel_for(tbb::blocked_range<int>(0, num_threads, 1),
-      [&](const tbb::blocked_range<int>& range) {
-        for (int i = range.begin(); i < range.end(); i += 2 * step) {
-          if (i + step < num_threads) {
-            auto begin = arr.begin() + offsets[i];
-            auto middle = arr.begin() + offsets[i + step];
-            int end_idx = std::min(i + (2 * step), num_threads);
-            auto end = arr.begin() + offsets[end_idx];
-            std::inplace_merge(begin, middle, end);
-          }
+    tbb::parallel_for(tbb::blocked_range<int>(0, num_threads, 1), [&](const tbb::blocked_range<int> &range) {
+      for (int i = range.begin(); i < range.end(); i += 2 * step) {
+        if (i + step < num_threads) {
+          auto begin = arr.begin() + offsets[i];
+          auto middle = arr.begin() + offsets[i + step];
+          int end_idx = std::min(i + (2 * step), num_threads);
+          auto end = arr.begin() + offsets[end_idx];
+          std::inplace_merge(begin, middle, end);
         }
-      });
+      }
+    });
   }
 
   return true;
