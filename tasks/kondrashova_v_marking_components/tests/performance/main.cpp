@@ -211,8 +211,8 @@ TEST_P(BlocksPerfTest, RunPerfModes) {
 
 namespace {
 
-const auto kAllPerfTasks =
-    ppc::util::MakeAllPerfTasks<InType, KondrashovaVTaskSEQ>(PPC_SETTINGS_kondrashova_v_marking_components);
+const auto kAllPerfTasks = ppc::util::MakeAllPerfTasks<InType, KondrashovaVTaskSEQ, KondrashovaVTaskOMP>(
+    PPC_SETTINGS_kondrashova_v_marking_components);
 
 const auto kGtestValues = ppc::util::TupleToGTestValues(kAllPerfTasks);
 

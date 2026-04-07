@@ -114,8 +114,9 @@ TEST_P(MarkingComponentsFuncTest, VariousBinaryImages) {
 const std::array<TestType, 4> kTestParam = {std::make_tuple(0, "empty"), std::make_tuple(1, "one_component"),
                                             std::make_tuple(2, "isolated_pixels"), std::make_tuple(3, "two_regions")};
 
-const auto kTestTasksList =
-    ppc::util::AddFuncTask<KondrashovaVTaskSEQ, InType>(kTestParam, PPC_SETTINGS_kondrashova_v_marking_components);
+const auto kTestTasksList = std::tuple_cat(
+    ppc::util::AddFuncTask<KondrashovaVTaskSEQ, InType>(kTestParam, PPC_SETTINGS_kondrashova_v_marking_components),
+    ppc::util::AddFuncTask<KondrashovaVTaskOMP, InType>(kTestParam, PPC_SETTINGS_kondrashova_v_marking_components));
 
 INSTANTIATE_TEST_SUITE_P(KondrashovaVMarkingComponentsFunctionalTests, MarkingComponentsFuncTest,
                          ppc::util::ExpandToValues(kTestTasksList),
