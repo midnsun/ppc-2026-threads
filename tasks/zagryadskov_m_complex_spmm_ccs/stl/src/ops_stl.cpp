@@ -103,8 +103,7 @@ void ZagryadskovMComplexSpMMCCSSTL::SpMM(const CCS &a, const CCS &b, CCS &c) {
   for (int tid = 0; tid < num_threads; ++tid) {
     int jstart = (tid * b.n) / num_threads;
     int jend = ((tid + 1) * b.n) / num_threads;
-    threads[tid] =
-        std::thread(SpMMNumeric, std::cref(a), std::cref(b), std::ref(c), std::cref(zero), jstart, jend);
+    threads[tid] = std::thread(SpMMNumeric, std::cref(a), std::cref(b), std::ref(c), std::cref(zero), jstart, jend);
   }
   for (auto &th : threads) {
     th.join();
