@@ -56,9 +56,8 @@ void ZagryadskovMComplexSpMMCCSTBB::SpMMSymbolic(const CCS &a, const CCS &b, std
 }
 
 void ZagryadskovMComplexSpMMCCSTBB::SpMMKernel(const CCS &a, const CCS &b, CCS &c, const std::complex<double> &zero,
-                                               std::vector<int> &rows,
-                                               std::vector<std::complex<double>> &acc, std::vector<int> &marker,
-                                               int j) {
+                                               std::vector<int> &rows, std::vector<std::complex<double>> &acc,
+                                               std::vector<int> &marker, int j) {
   rows.clear();
 
   int write_ptr = c.col_ptr[j];
