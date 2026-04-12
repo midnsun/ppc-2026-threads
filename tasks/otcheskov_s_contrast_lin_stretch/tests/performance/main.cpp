@@ -10,6 +10,7 @@
 #include "otcheskov_s_contrast_lin_stretch/omp/include/ops_omp.hpp"
 #include "otcheskov_s_contrast_lin_stretch/seq/include/ops_seq.hpp"
 #include "otcheskov_s_contrast_lin_stretch/tbb/include/ops_tbb.hpp"
+#include "otcheskov_s_contrast_lin_stretch/stl/include/ops_stl.hpp"
 #include "util/include/perf_test_util.hpp"
 
 namespace otcheskov_s_contrast_lin_stretch {
@@ -60,7 +61,7 @@ namespace {
 
 const auto kAllPerfTasks =
     ppc::util::MakeAllPerfTasks<InType, OtcheskovSContrastLinStretchSEQ, OtcheskovSContrastLinStretchOMP,
-                                OtcheskovSContrastLinStretchTBB>(PPC_SETTINGS_otcheskov_s_contrast_lin_stretch);
+                                OtcheskovSContrastLinStretchTBB, OtcheskovSContrastLinStretchSTL>(PPC_SETTINGS_otcheskov_s_contrast_lin_stretch);
 
 const auto kGtestValues = ppc::util::TupleToGTestValues(kAllPerfTasks);
 
