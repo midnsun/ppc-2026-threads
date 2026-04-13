@@ -48,6 +48,20 @@ bool BorunovVComplexCcsOMP::PreProcessingImpl() {
 
 namespace {
 
+void CustomShellSort(std::vector<int> &touched) {
+  for (std::size_t gap = touched.size() / 2; gap > 0; gap /= 2) {
+    for (std::size_t i = gap; i < touched.size(); ++i) {
+      int temp = touched[i];
+      std::size_t j = i;
+      while (j >= gap && touched[j - gap] > temp) {
+        touched[j] = touched[j - gap];
+        j -= gap;
+      }
+      touched[j] = temp;
+    }
+  }
+}
+
 void ProcessColumn(int j, const SparseMatrix &a, const SparseMatrix &b, int tid, int jstart,
                    std::vector<std::complex<double>> &acc, std::vector<int> &marker, std::vector<int> &touched,
                    std::vector<std::vector<std::complex<double>>> &t_values,
@@ -68,7 +82,8 @@ void ProcessColumn(int j, const SparseMatrix &a, const SparseMatrix &b, int tid,
     }
   }
 
-  std::sort(touched.begin(), touched.end());
+  // Custom Shell Sort
+  CustomShellSort(touched);
 
   for (int i : touched) {
     if (std::abs(acc[i]) > 1e-9) {
