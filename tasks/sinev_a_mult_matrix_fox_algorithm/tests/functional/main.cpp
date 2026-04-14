@@ -10,6 +10,7 @@
 #include "sinev_a_mult_matrix_fox_algorithm/common/include/common.hpp"
 #include "sinev_a_mult_matrix_fox_algorithm/omp/include/ops_omp.hpp"
 #include "sinev_a_mult_matrix_fox_algorithm/seq/include/ops_seq.hpp"
+#include "sinev_a_mult_matrix_fox_algorithm/tbb/include/ops_tbb.hpp"
 #include "util/include/func_test_util.hpp"
 #include "util/include/util.hpp"
 
@@ -103,6 +104,8 @@ const std::array<TestType, 13> kTestParams = {
 const auto kTestTasksList = std::tuple_cat(ppc::util::AddFuncTask<SinevAMultMatrixFoxAlgorithmOMP, InType>(
                                                kTestParams, PPC_SETTINGS_sinev_a_mult_matrix_fox_algorithm),
                                            ppc::util::AddFuncTask<SinevAMultMatrixFoxAlgorithmSEQ, InType>(
+                                               kTestParams, PPC_SETTINGS_sinev_a_mult_matrix_fox_algorithm),
+                                           ppc::util::AddFuncTask<SinevAMultMatrixFoxAlgorithmTBB, InType>(
                                                kTestParams, PPC_SETTINGS_sinev_a_mult_matrix_fox_algorithm)
 
 );
