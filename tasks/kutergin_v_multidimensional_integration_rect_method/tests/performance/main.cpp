@@ -3,6 +3,7 @@
 #include <cmath>
 #include <vector>
 
+#include "../../all/include/rect_method_all.hpp"
 #include "../../common/include/common.hpp"
 #include "../../omp/include/rect_method_omp.hpp"
 #include "../../seq/include/rect_method_seq.hpp"
@@ -47,8 +48,8 @@ TEST_P(RectMethodPerfTests, PerfTest) {
 }
 
 const auto kAllPerfTasks =
-    ppc::util::MakeAllPerfTasks<InType, RectMethodSequential, RectMethodOMP, RectMethodTBB, RectMethodSTL>(
-        PPC_SETTINGS_kutergin_v_multidimensional_integration_rect_method);
+    ppc::util::MakeAllPerfTasks<InType, RectMethodSequential, RectMethodOMP, RectMethodTBB, RectMethodSTL,
+                                RectMethodALL>(PPC_SETTINGS_kutergin_v_multidimensional_integration_rect_method);
 
 INSTANTIATE_TEST_SUITE_P(MultidimensionalIntegrationPerf, RectMethodPerfTests,
                          ppc::util::TupleToGTestValues(kAllPerfTasks), RectMethodPerfTests::CustomPerfTestName);
