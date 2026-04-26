@@ -3,9 +3,8 @@
 #include <algorithm>
 #include <array>
 #include <cstddef>
-#include <execution>
+#include <functional>
 #include <future>
-#include <numeric>
 #include <thread>
 #include <utility>
 #include <vector>
@@ -93,7 +92,7 @@ std::vector<double> LazarevaATestTaskSTL::Add(const std::vector<double> &a, cons
   const auto size = static_cast<size_t>(n) * static_cast<size_t>(n);
   std::vector<double> result(size);
 
-  std::transform(a.begin(), a.begin() + static_cast<ptrdiff_t>(size), b.begin(), result.begin(), std::plus<>());
+  std::transform(a.begin(), a.begin() + static_cast<ptrdiff_t>(size), b.begin(), result.begin(), std::plus<double>());
 
   return result;
 }
@@ -102,7 +101,7 @@ std::vector<double> LazarevaATestTaskSTL::Sub(const std::vector<double> &a, cons
   const auto size = static_cast<size_t>(n) * static_cast<size_t>(n);
   std::vector<double> result(size);
 
-  std::transform(a.begin(), a.begin() + static_cast<ptrdiff_t>(size), b.begin(), result.begin(), std::minus<>());
+  std::transform(a.begin(), a.begin() + static_cast<ptrdiff_t>(size), b.begin(), result.begin(), std::minus<double>());
 
   return result;
 }
@@ -179,11 +178,11 @@ std::vector<double> LazarevaATestTaskSTL::NaiveMult(const std::vector<double> &a
     }
   };
 
-  for (int t = 0; t < num_threads; ++t) {
-    threads.emplace_back(worker, t);
+  for (int thread_idx = 0; thread_idx < num_threads; ++thread_idx) {
+    threads.emplace_back(worker, thread_idx);
   }
 
-  std::for_each(threads.begin(), threads.end(), [](std::thread &t) { t.join(); });
+  std::ranges::for_each(threads, [](std::thread &thr) { thr.join(); });
 
   return c;
 }
@@ -229,7 +228,7 @@ std::vector<double> LazarevaATestTaskSTL::Strassen(const std::vector<double> &ro
   std::array<std::future<std::vector<double>>, 7> futures;
 
   for (size_t k = 0; k < 7; ++k) {
-    futures[k] = std::async(std::launch::async, [&lhs, &rhs, k, half]() {
+    futures.at(k) = std::async(std::launch::async, [&lhs, &rhs, k, half]() {
       const int nn = half;
       const auto sz = static_cast<size_t>(nn) * static_cast<size_t>(nn);
       std::vector<double> c(sz, 0.0);
@@ -246,8 +245,7 @@ std::vector<double> LazarevaATestTaskSTL::Strassen(const std::vector<double> &ro
     });
   }
 
-  std::transform(futures.begin(), futures.end(), m.begin(),
-                 [](std::future<std::vector<double>> &f) { return f.get(); });
+  std::ranges::transform(futures, m.begin(), [](std::future<std::vector<double>> &f) { return f.get(); });
 
   auto c11 = Add(Sub(Add(m.at(0), m.at(3), half), m.at(4), half), m.at(6), half);
   auto c12 = Add(m.at(2), m.at(4), half);
