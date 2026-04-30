@@ -2,7 +2,7 @@
 
 ## "Умножение разреженных матриц. Элементы комплексного типа. Формат хранения матрицы - столбцовый (CCS)"
 
-## Вариант №7. Технология OMP
+## Вариант №7. Технология STL
 
 ### Национальный исследовательский Нижегородский государственный университет им. Н.И. Лобачевского
 
@@ -23,7 +23,7 @@
 
 В данной работе реализован и исследован параллельный алгоритм умножения двух разреженных матриц в формате
 **CCS** (Compressed Column Storage, см. [1]) с элементами комплексного типа `std::complex<double>` с
-использованием технологии OpenMP [2]. Реализация этого умножения направлена на распределение вычислений
+использованием технологии `std::thread`. Реализация этого умножения направлена на распределение вычислений
 по потокам для уменьшения времени вычислений.
 
 ---
@@ -54,7 +54,8 @@
 ## Описание алгоритма
 
 Выполняется умножение по алгоритму, состоящему из двух фаз. При этом обработка столбцов правой матрицы и вычисление
-результирующих столбцов левой матрицы выполняется параллельно и независимо в каждой из фаз.
+результирующих столбцов левой матрицы выполняется параллельно и независимо в каждой из фаз. Каждому потоку
+назначается функция с аргументами, соответствующими номеру потока.
 
 **1. Символьная фаза (symbolic phase):**
 Для каждого столбца правой матрицы определяется структура соответствующего столбца результата.
@@ -69,8 +70,8 @@
 - Для каждого столбца используются локальные для потоков вектора **acc** аккумулирования результата и **marker**
 для исключения повторной обработки столбцов;
 - Численный результат записывается в заранее выделенные векторы результирующей матрицы.
-- Для обеспечения параллелизма используется директива препроцессора `omp parallel` из библиотеки **OpenMP**
-с разбиением столбцов потокам. При этом каждому потоку назначается функция со своими параметрами индексов столбцов;
+- Для обеспечения параллелизма используется подход на основе создания контейнера `std::thread`, создания и добавление
+в него потоков, которым назначаются соответствующие функции и последующего вызова `.join()`
 
 Использование двухфазного подхода позволяет избежать гонок данных или блокировок потоков при записи
 численного результата в итоговую матрицу, поскольку после выделения памяти на символьной фазе каждый поток
@@ -91,8 +92,8 @@
 | Версия алгоритма | 2 потока | 3 потока | 6 потоков | 12 потоков |
 | ---------------: | -------: | -------: | --------: | ---------: |
 | Последовательная | 0.785 | 0.785 | 0.785 | 0.785 |
-| Параллельная (OpenMP) | 0.436 | 0.290 | 0.174 | 0.110 |
-| Ускорение (раз) | 1.8 | 2.7 | 4.5 | 7.1 |
+| Параллельная (OpenMP) | 0.456 | 0.310 | 0.196 | 0.149 |
+| Ускорение (раз) | 1.7 | 2.5 | 4.0 | 5.2 |
 
 В приведённо таблице во втором, третьем и последующих столбцах представлено время выполнения в секундах
 при использовании 2, 3, 6, и 12 потоков. Тестирование производилось на 6-ядерном процессоре Intel i5-12400f.
@@ -101,7 +102,7 @@
 
 ## Выводы из результатов
 
-Реализация с использованием OpenMP показывает ускорение до **7.1 раз**. Это демонстрирует, что алгоритм
+Реализация с использованием OpenMP показывает ускорение до **5.2 раз**. Это демонстрирует, что алгоритм
 хорошо приспособлен к параллелизму, а его реализация является достаточно эффективной. Наибольшая
 эффективность (ускорение относительно количества потоков) достигается при использовании 2 потоков.
 
@@ -110,7 +111,7 @@
 ## Заключение
 
 Реализована и протестирована параллельная реализация алгоритма умножения двух разреженных матриц
-в формате **CCS** с элементами комплексного типа с использованием технологии OpenMP.
+в формате **CCS** с элементами комплексного типа с использованием технологии `std::thread`.
 В результате экспериментов подтверждена корректность реализации, вычислено время работы алгоритма
 и проведено сравнение с последовательной реализацией.
 
@@ -120,17 +121,15 @@
 
 1. Лекция кафедры ВВСП о хранении разреженных матриц в формате презентации:
 <https://hpc-education.unn.ru/files/courses/optimization/2_3_SparseDS_Lect.pdf>
-2. Документация к технологии OpenMP:
-<https://www.openmp.org/wp-content/uploads/OpenMP-RefGuide-6.0-OMP60SC24-web.pdf>
 
 ---
 
 ## Приложение
 
-Реализация параллельного алгоритма умножения двух комплексных матриц в формате CCS с использованием технологии OpenMP:
+Реализация параллельного алгоритма умножения двух комплексных матриц в формате CCS с использованием технологии `std::thread`:
 
 ```cpp
-void ZagryadskovMComplexSpMMCCSOMP::SpMMSymbolic(const CCS &a, const CCS &b, std::vector<int> &col_ptr, int jstart,
+void ZagryadskovMComplexSpMMCCSSTL::SpMMSymbolic(const CCS &a, const CCS &b, std::vector<int> &col_ptr, int jstart,
                                                  int jend) {
   std::vector<int> marker(a.m, -1);
 
@@ -151,7 +150,7 @@ void ZagryadskovMComplexSpMMCCSOMP::SpMMSymbolic(const CCS &a, const CCS &b, std
   }
 }
 
-void ZagryadskovMComplexSpMMCCSOMP::SpMMKernel(const CCS &a, const CCS &b, CCS &c, const std::complex<double> &zero,
+void ZagryadskovMComplexSpMMCCSSTL::SpMMKernel(const CCS &a, const CCS &b, CCS &c, const std::complex<double> &zero,
                                                std::vector<int> &rows, std::vector<std::complex<double>> &acc,
                                                std::vector<int> &marker, int j) {
   rows.clear();
@@ -178,7 +177,7 @@ void ZagryadskovMComplexSpMMCCSOMP::SpMMKernel(const CCS &a, const CCS &b, CCS &
   }
 }
 
-void ZagryadskovMComplexSpMMCCSOMP::SpMMNumeric(const CCS &a, const CCS &b, CCS &c, const std::complex<double> &zero,
+void ZagryadskovMComplexSpMMCCSSTL::SpMMNumeric(const CCS &a, const CCS &b, CCS &c, const std::complex<double> &zero,
                                                 int jstart, int jend) {
   std::vector<int> marker(a.m, -1);
   std::vector<std::complex<double>> acc(a.m, zero);
@@ -189,20 +188,22 @@ void ZagryadskovMComplexSpMMCCSOMP::SpMMNumeric(const CCS &a, const CCS &b, CCS 
   }
 }
 
-void ZagryadskovMComplexSpMMCCSOMP::SpMM(const CCS &a, const CCS &b, CCS &c) {
+void ZagryadskovMComplexSpMMCCSSTL::SpMM(const CCS &a, const CCS &b, CCS &c) {
   c.m = a.m;
   c.n = b.n;
   const int num_threads = ppc::util::GetNumThreads();
+  std::vector<std::thread> threads(num_threads);
 
   std::complex<double> zero(0.0, 0.0);
   c.col_ptr.assign(c.n + 1, 0);
 
-#pragma omp parallel default(none) shared(num_threads, a, b, c) num_threads(ppc::util::GetNumThreads())
-  {
-    int tid = omp_get_thread_num();
+  for (int tid = 0; tid < num_threads; ++tid) {
     int jstart = (tid * b.n) / num_threads;
     int jend = ((tid + 1) * b.n) / num_threads;
-    SpMMSymbolic(a, b, c.col_ptr, jstart, jend);
+    threads[tid] = std::thread(SpMMSymbolic, std::cref(a), std::cref(b), std::ref(c.col_ptr), jstart, jend);
+  }
+  for (auto &th : threads) {
+    th.join();
   }
 
   for (int j = 0; j < c.n; ++j) {
@@ -211,12 +212,14 @@ void ZagryadskovMComplexSpMMCCSOMP::SpMM(const CCS &a, const CCS &b, CCS &c) {
   int nnz = c.col_ptr[b.n];
   c.row_ind.resize(nnz);
   c.values.resize(nnz);
-#pragma omp parallel default(none) shared(num_threads, a, b, c, zero) num_threads(ppc::util::GetNumThreads())
-  {
-    int tid = omp_get_thread_num();
+
+  for (int tid = 0; tid < num_threads; ++tid) {
     int jstart = (tid * b.n) / num_threads;
     int jend = ((tid + 1) * b.n) / num_threads;
-    SpMMNumeric(a, b, c, zero, jstart, jend);
+    threads[tid] = std::thread(SpMMNumeric, std::cref(a), std::cref(b), std::ref(c), std::cref(zero), jstart, jend);
+  }
+  for (auto &th : threads) {
+    th.join();
   }
 }
 ```
