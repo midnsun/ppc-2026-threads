@@ -174,7 +174,7 @@ $env:PPC_NUM_THREADS="<количество потоков>"
 .\ppc_perf_tests.exe --gtest_repeat=5 --gtest_filter="*task_run_zagryadskov_m_complex_spmm_ccs_omp_enabled*"
 .\ppc_perf_tests.exe --gtest_repeat=5 --gtest_filter="*task_run_zagryadskov_m_complex_spmm_ccs_tbb_enabled*"
 .\ppc_perf_tests.exe --gtest_repeat=5 --gtest_filter="*task_run_zagryadskov_m_complex_spmm_ccs_stl_enabled*"
-mpiexec -n <количество процессов> .\ppc_func_tests.exe \
+mpiexec -n <количество процессов> .\ppc_func_tests.exe --gtest_repeat=5 \
 --gtest_filter="*task_run_zagryadskov_m_complex_spmm_ccs_all_enabled*"
 ```
 
